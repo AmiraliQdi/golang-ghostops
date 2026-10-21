@@ -1,6 +1,9 @@
-package log
+package parser
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type LogType int
 
@@ -12,7 +15,7 @@ const (
 	Fatal
 )
 
-var InvalidLogType = errors.New("invalid log type")
+var ErrInvalidLogType = errors.New("invalid log type")
 
 var logTypesLookup = map[string]LogType{
 	"INFO":  Info,
@@ -40,7 +43,7 @@ func (logType LogType) String() string {
 func ToLogType(rawLogType string) (LogType, error) {
 	parsedLogType := logTypesLookup[rawLogType]
 	if parsedLogType == Unknown {
-		return Unknown, InvalidLogType
+		return Unknown, fmt.Errorf("%w %s", ErrInvalidLogType, rawLogType)
 	}
 	return parsedLogType, nil
 }

@@ -1,0 +1,291 @@
+{
+  "summary": {
+    "total_lines": 6000,
+    "valid_entries": 5532,
+    "malformed_lines": 468
+  },
+  "entries_by_severity": [
+    {
+      "name": "INFO",
+      "count": 3335
+    },
+    {
+      "name": "WARN",
+      "count": 1106
+    },
+    {
+      "name": "ERROR",
+      "count": 820
+    },
+    {
+      "name": "FATAL",
+      "count": 271
+    }
+  ],
+  "entries_by_service": [
+    {
+      "name": "auth-service",
+      "count": 1106
+    },
+    {
+      "name": "notification-service",
+      "count": 1130
+    },
+    {
+      "name": "order-service",
+      "count": 1082
+    },
+    {
+      "name": "payment-service",
+      "count": 1090
+    },
+    {
+      "name": "user-service",
+      "count": 1124
+    }
+  ],
+  "incidents": [
+    {
+      "type": "Crashed",
+      "severity": "FATAL",
+      "occurrences": 271,
+      "first_seen": "2026-10-01T00:52:07Z",
+      "last_seen": "2026-10-06T18:49:45Z",
+      "duration_seconds": 496658,
+      "services": [
+        {
+          "name": "order-service",
+          "count": 63
+        },
+        {
+          "name": "user-service",
+          "count": 57
+        },
+        {
+          "name": "auth-service",
+          "count": 52
+        },
+        {
+          "name": "notification-service",
+          "count": 50
+        },
+        {
+          "name": "payment-service",
+          "count": 49
+        }
+      ]
+    },
+    {
+      "type": "Database",
+      "severity": "ERROR",
+      "occurrences": 341,
+      "first_seen": "2026-10-01T01:04:45Z",
+      "last_seen": "2026-10-06T16:45:55Z",
+      "duration_seconds": 488470,
+      "services": [
+        {
+          "name": "auth-service",
+          "count": 88
+        },
+        {
+          "name": "order-service",
+          "count": 88
+        },
+        {
+          "name": "user-service",
+          "count": 83
+        },
+        {
+          "name": "notification-service",
+          "count": 82
+        }
+      ]
+    },
+    {
+      "type": "UncaughtException",
+      "severity": "ERROR",
+      "occurrences": 175,
+      "first_seen": "2026-10-01T00:21:46Z",
+      "last_seen": "2026-10-06T17:01:53Z",
+      "duration_seconds": 492007,
+      "services": [
+        {
+          "name": "auth-service",
+          "count": 52
+        },
+        {
+          "name": "user-service",
+          "count": 47
+        },
+        {
+          "name": "notification-service",
+          "count": 39
+        },
+        {
+          "name": "order-service",
+          "count": 37
+        }
+      ]
+    },
+    {
+      "type": "Timeout",
+      "severity": "ERROR",
+      "occurrences": 163,
+      "first_seen": "2026-10-01T00:24:58Z",
+      "last_seen": "2026-10-06T17:19:29Z",
+      "duration_seconds": 492871,
+      "services": [
+        {
+          "name": "payment-service",
+          "count": 163
+        }
+      ]
+    },
+    {
+      "type": "BadGateway",
+      "severity": "ERROR",
+      "occurrences": 141,
+      "first_seen": "2026-10-01T00:24:09Z",
+      "last_seen": "2026-10-06T17:59:02Z",
+      "duration_seconds": 495293,
+      "services": [
+        {
+          "name": "user-service",
+          "count": 44
+        },
+        {
+          "name": "order-service",
+          "count": 41
+        },
+        {
+          "name": "auth-service",
+          "count": 30
+        },
+        {
+          "name": "notification-service",
+          "count": 26
+        }
+      ]
+    },
+    {
+      "type": "Memory",
+      "severity": "WARN",
+      "occurrences": 298,
+      "first_seen": "2026-10-01T00:06:02Z",
+      "last_seen": "2026-10-06T18:04:30Z",
+      "duration_seconds": 496708,
+      "services": [
+        {
+          "name": "payment-service",
+          "count": 80
+        },
+        {
+          "name": "user-service",
+          "count": 66
+        },
+        {
+          "name": "notification-service",
+          "count": 56
+        },
+        {
+          "name": "auth-service",
+          "count": 50
+        },
+        {
+          "name": "order-service",
+          "count": 46
+        }
+      ]
+    },
+    {
+      "type": "RateLimit",
+      "severity": "WARN",
+      "occurrences": 276,
+      "first_seen": "2026-10-01T00:20:21Z",
+      "last_seen": "2026-10-06T17:26:24Z",
+      "duration_seconds": 493563,
+      "services": [
+        {
+          "name": "auth-service",
+          "count": 58
+        },
+        {
+          "name": "order-service",
+          "count": 57
+        },
+        {
+          "name": "user-service",
+          "count": 56
+        },
+        {
+          "name": "notification-service",
+          "count": 55
+        },
+        {
+          "name": "payment-service",
+          "count": 50
+        }
+      ]
+    },
+    {
+      "type": "DatabasePoolPressure",
+      "severity": "WARN",
+      "occurrences": 272,
+      "first_seen": "2026-10-01T00:04:53Z",
+      "last_seen": "2026-10-06T18:36:10Z",
+      "duration_seconds": 498677,
+      "services": [
+        {
+          "name": "order-service",
+          "count": 61
+        },
+        {
+          "name": "user-service",
+          "count": 56
+        },
+        {
+          "name": "notification-service",
+          "count": 55
+        },
+        {
+          "name": "payment-service",
+          "count": 51
+        },
+        {
+          "name": "auth-service",
+          "count": 49
+        }
+      ]
+    },
+    {
+      "type": "API",
+      "severity": "WARN",
+      "occurrences": 260,
+      "first_seen": "2026-10-01T00:34:33Z",
+      "last_seen": "2026-10-06T17:29:45Z",
+      "duration_seconds": 492912,
+      "services": [
+        {
+          "name": "notification-service",
+          "count": 66
+        },
+        {
+          "name": "user-service",
+          "count": 52
+        },
+        {
+          "name": "auth-service",
+          "count": 50
+        },
+        {
+          "name": "order-service",
+          "count": 46
+        },
+        {
+          "name": "payment-service",
+          "count": 46
+        }
+      ]
+    }
+  ]
+}
