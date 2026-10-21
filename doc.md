@@ -37,13 +37,13 @@ Errors wrap sentinel values (`ErrInvalidLogFormat`, `ErrInvalidLogTimestamp`, `E
 
 Splitting on a single space with `strings.SplitN` was the first approach, but a double space produced an empty field, so `... ERROR  svc msg` was accepted with an empty service name, and `... ERROR svc ` was accepted with an empty message. `strings.Fields` rules out both. The trade-off is that repeated spaces inside a message are collapsed to one, which does not affect keyword matching.
 
-Levels are an `int` type (`LogType`) with a `String()` method. Comparing ints is cheap, and the fixed order `Info < Warn < Error < Fatal` is used to sort incidents by severity.
+Levels are an `int` type (`LogType`) with a `String()` method. Comparing ints is cheap, and the fixed order `Info < Warn < Error < Fatal` lets a rule say "this level or worse".
 
 ## Incident detection
 
-A rule is a level plus a list of keywords. An entry matches when the level is equal **and** the lower-cased message contains one of the keywords.
+A rule is an incident type (what went wrong) plus a minimum level and a list of keywords. An entry matches when its level is **at least** the minimum level **and** the lower-cased message contains one of the keywords. The rule only says what kind of problem it is; how bad it was comes from the entries (see Severity below). This way an `ERROR` or `FATAL` line about memory still counts as a Memory incident, instead of being ignored because the Memory rule is a WARN rule.
 
-Checking the level first matters. For example `INFO ... Token generated for user session` contains `rate` (in "gene**rate**d") and `INFO ... GET /api/v1/health` contains `api`, but neither is a WARN, so neither is reported as an incident.
+Checking the level first matters. For example `INFO ... Token generated for user session` contains `rate` (in "gene**rate**d") and `INFO ... GET /api/v1/health` contains `api`, but INFO is below every rule's minimum level, so neither is reported as an incident.
 
 ### Overlapping rules
 
@@ -65,12 +65,18 @@ The BadGateway rule (ERROR, keyword `bad gateway`) covers `Payment gateway retur
 
 There is one group per incident type. A group records:
 
-- the incident (type and severity),
-- the number of occurrences,
+- the incident type,
+- the number of occurrences, in total and per level,
 - the first and last timestamp,
 - the number of occurrences per affected service.
 
 Because entries are not in chronological order, every entry is compared against both ends of the time range. The first entry of a group sets both ends (`Count == 1`), so the zero `time.Time` never appears in a range.
+
+### Severity
+
+A group's severity is a weighted sum of its entries: WARN = 1, ERROR = 3, FATAL = 10 (INFO never matches a rule). Three FATAL, two ERROR and one WARN entry give `3*10 + 2*3 + 1 = 37`.
+
+The score measures total impact, not just the worst single entry. A problem that produced hundreds of warnings can rank above one that produced three fatals. The weights are in one place (`levelWeights` in `internal/incidents/group.go`), so the trade-off can be tuned in one place.
 
 Grouping by type rather than by (type, service) keeps the report short and still answers "which services are affected and how much" through the per-service counts.
 
@@ -82,7 +88,8 @@ Grouping by type rather than by (type, service) keeps the report short and still
 
 - severities in level order (INFO to FATAL), always all four, even with a count of zero,
 - services sorted by name,
-- incidents with zero occurrences dropped, the rest sorted by severity, then occurrences, then type,
+- incidents with zero occurrences dropped, the rest sorted by severity score, then occurrences, then type,
+- levels inside an incident listed from most to least severe,
 - services inside an incident sorted by count, then name.
 
 Go map iteration order is random, so every map is turned into a sorted slice here. This is what makes both outputs deterministic, and it means the text and JSON reports can never disagree. Slices are initialised as empty, not nil, so JSON shows `[]` rather than `null` for an empty input.

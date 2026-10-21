@@ -6,9 +6,16 @@ import (
 	"github.com/AmiraliQdi/golang-ghostops/internal/parser"
 )
 
+var levelWeights = map[parser.LogType]int{
+	parser.Warn:  1,
+	parser.Error: 3,
+	parser.Fatal: 10,
+}
+
 type IncidentGroup struct {
 	Incident         *Incident
 	AffectedServices map[string]int
+	LevelCounts      map[parser.LogType]int
 	FirstOccurrence  time.Time
 	LastOccurrence   time.Time
 	Count            int
@@ -24,7 +31,7 @@ func NewIncidentGroups() map[string]*IncidentGroup {
 
 func addNewIncidentGroup(groups map[string]*IncidentGroup, incident *Incident) *IncidentGroup {
 	groups[incident.Name] = &IncidentGroup{Incident: incident, AffectedServices: make(map[string]int),
-		FirstOccurrence: time.Time{}, LastOccurrence: time.Time{}, Count: 0}
+		LevelCounts: make(map[parser.LogType]int), FirstOccurrence: time.Time{}, LastOccurrence: time.Time{}, Count: 0}
 	return groups[incident.Name]
 }
 
@@ -46,6 +53,7 @@ func AddLogToIncidentGroups(entry *parser.Log, incidentGroups map[string]*Incide
 	}
 
 	group.AffectedServices[entry.Service]++
+	group.LevelCounts[entry.LogType]++
 
 	if entry.Timestamp.After(group.LastOccurrence) {
 		group.LastOccurrence = entry.Timestamp
@@ -54,4 +62,12 @@ func AddLogToIncidentGroups(entry *parser.Log, incidentGroups map[string]*Incide
 	if entry.Timestamp.Before(group.FirstOccurrence) {
 		group.FirstOccurrence = entry.Timestamp
 	}
+}
+
+func (g *IncidentGroup) Severity() int {
+	severity := 0
+	for level, count := range g.LevelCounts {
+		severity += count * levelWeights[level]
+	}
+	return severity
 }

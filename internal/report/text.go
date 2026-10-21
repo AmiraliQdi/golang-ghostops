@@ -47,12 +47,14 @@ func (TextReporter) Write(w io.Writer, r Report) error {
 		fmt.Fprintln(tw, "  No incidents detected.")
 	}
 	for i, incident := range r.Incidents {
-		fmt.Fprintf(tw, "  %d. %s [%s]\n", i+1, incident.Type, incident.Severity)
+		fmt.Fprintf(tw, "  %d. %s\n", i+1, incident.Type)
+		fmt.Fprintf(tw, "     Severity:\t%d\n", incident.Severity)
 		fmt.Fprintf(tw, "     Occurrences:\t%d\n", incident.Occurrences)
+		fmt.Fprintf(tw, "     Levels:\t%s\n", formatCounts(incident.Levels))
 		fmt.Fprintf(tw, "     First seen:\t%s\n", incident.FirstSeen.Format(timeLayout))
 		fmt.Fprintf(tw, "     Last seen:\t%s\n", incident.LastSeen.Format(timeLayout))
 		fmt.Fprintf(tw, "     Duration:\t%s\n", incident.Duration())
-		fmt.Fprintf(tw, "     Services:\t%s\n", formatServices(incident.Services))
+		fmt.Fprintf(tw, "     Services:\t%s\n", formatCounts(incident.Services))
 		if i < len(r.Incidents)-1 {
 			fmt.Fprintln(tw)
 		}
@@ -79,9 +81,9 @@ func percent(part, whole int) string {
 	return fmt.Sprintf("%.1f%%", float64(part)*100/float64(whole))
 }
 
-func formatServices(services []Count) string {
-	parts := make([]string, len(services))
-	for i, s := range services {
+func formatCounts(counts []Count) string {
+	parts := make([]string, len(counts))
+	for i, s := range counts {
 		parts[i] = fmt.Sprintf("%s (%d)", s.Name, s.Count)
 	}
 	return strings.Join(parts, ", ")

@@ -8,54 +8,54 @@ import (
 
 type Incident struct {
 	Name     string
-	Level    parser.LogType
+	MinLevel parser.LogType
 	keywords []string
 }
 
 var incidentRules = []Incident{
 	{
 		Name:     "Crashed",
-		Level:    parser.Fatal,
+		MinLevel: parser.Fatal,
 		keywords: []string{"crashed"},
 	},
 	{
 		Name:     "Database",
-		Level:    parser.Error,
+		MinLevel: parser.Error,
 		keywords: []string{"database", "sql"},
 	},
 	{
 		Name:     "Timeout",
-		Level:    parser.Error,
+		MinLevel: parser.Error,
 		keywords: []string{"timeout", "timed out"},
 	},
 	{
 		Name:     "BadGateway",
-		Level:    parser.Error,
+		MinLevel: parser.Error,
 		keywords: []string{"bad gateway"},
 	},
 	{
 		Name:     "UncaughtException",
-		Level:    parser.Error,
+		MinLevel: parser.Error,
 		keywords: []string{"nullpointerexception"},
 	},
 	{
 		Name:     "DatabasePoolPressure",
-		Level:    parser.Warn,
+		MinLevel: parser.Warn,
 		keywords: []string{"pool"},
 	},
 	{
 		Name:     "Memory",
-		Level:    parser.Warn,
+		MinLevel: parser.Warn,
 		keywords: []string{"memory"},
 	},
 	{
 		Name:     "RateLimit",
-		Level:    parser.Warn,
+		MinLevel: parser.Warn,
 		keywords: []string{"rate", "limit"},
 	},
 	{
 		Name:     "API",
-		Level:    parser.Warn,
+		MinLevel: parser.Warn,
 		keywords: []string{"deprecated", "api"},
 	},
 }
@@ -70,7 +70,7 @@ func getLogIncident(entry *parser.Log) *Incident {
 }
 
 func (inc *Incident) contains(entry *parser.Log) bool {
-	if entry.LogType != inc.Level {
+	if entry.LogType < inc.MinLevel {
 		return false
 	}
 	for _, keyword := range inc.keywords {

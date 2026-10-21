@@ -72,9 +72,9 @@ Example:
 
 ## Incident rules
 
-A log entry matches a rule when its level equals the rule's level **and** its message contains one of the rule's keywords (case-insensitive). Rules are checked in this order and the first match wins, so each entry belongs to at most one incident.
+A log entry matches a rule when its level is **at least** the rule's minimum level **and** its message contains one of the rule's keywords (case-insensitive). Rules are checked in this order and the first match wins, so each entry belongs to at most one incident.
 
-| Priority | Incident | Level | Keywords |
+| Priority | Incident | Min level | Keywords |
 |---|---|---|---|
 | 1 | Crashed | FATAL | `crashed` |
 | 2 | Database | ERROR | `database`, `sql` |
@@ -87,6 +87,18 @@ A log entry matches a rule when its level equals the rule's level **and** its me
 | 9 | API | WARN | `deprecated`, `api` |
 
 For example, `Failed to connect to database: timeout after 5000ms` matches both Database and Timeout, and is reported as Database.
+
+### Severity
+
+An incident's severity is a score: every entry in the group adds the weight of its level.
+
+| Level | Weight |
+|---|---|
+| WARN | 1 |
+| ERROR | 3 |
+| FATAL | 10 |
+
+For example, 3 FATAL + 2 ERROR + 1 WARN entries give `3*10 + 2*3 + 1*1 = 37`. Incidents are sorted by this score, so a long run of warnings can rank above a short burst of fatals.
 
 ## Example output
 
@@ -119,8 +131,10 @@ Entries by service
 
 Incidents (9 detected)
 ----------------------
-  1. Crashed [FATAL]
+  1. Crashed
+     Severity:     2710
      Occurrences:  271
+     Levels:       FATAL (271)
      First seen:   2026-10-01T00:52:07Z
      Last seen:    2026-10-06T18:49:45Z
      Duration:     137h57m38s
@@ -138,8 +152,9 @@ The full JSON report for the same file is in [`output/report.json`](output/repor
   "incidents": [
     {
       "type": "Crashed",
-      "severity": "FATAL",
+      "severity": 2710,
       "occurrences": 271,
+      "levels": [ { "name": "FATAL", "count": 271 } ],
       "first_seen": "2026-10-01T00:52:07Z",
       "last_seen": "2026-10-06T18:49:45Z",
       "duration_seconds": 496658,

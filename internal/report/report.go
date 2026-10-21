@@ -40,8 +40,9 @@ type Count struct {
 
 type Incident struct {
 	Type            string    `json:"type"`
-	Severity        string    `json:"severity"`
+	Severity        int       `json:"severity"`
 	Occurrences     int       `json:"occurrences"`
+	Levels          []Count   `json:"levels"`
 	FirstSeen       time.Time `json:"first_seen"`
 	LastSeen        time.Time `json:"last_seen"`
 	DurationSeconds int64     `json:"duration_seconds"`
@@ -75,8 +76,9 @@ func New(a *analysis.Analyzer) Report {
 	for _, group := range detectedGroups(a.IncidentGroups) {
 		incident := Incident{
 			Type:        group.Incident.Name,
-			Severity:    group.Incident.Level.String(),
+			Severity:    group.Severity(),
 			Occurrences: group.Count,
+			Levels:      levelsBySeverity(group.LevelCounts),
 			FirstSeen:   group.FirstOccurrence,
 			LastSeen:    group.LastOccurrence,
 			Services:    servicesByCount(group.AffectedServices),
@@ -84,6 +86,13 @@ func New(a *analysis.Analyzer) Report {
 		incident.DurationSeconds = int64(incident.Duration().Seconds())
 		r.Incidents = append(r.Incidents, incident)
 	}
+	slices.SortFunc(r.Incidents, func(a, b Incident) int {
+		return cmp.Or(
+			cmp.Compare(b.Severity, a.Severity),
+			cmp.Compare(b.Occurrences, a.Occurrences),
+			cmp.Compare(a.Type, b.Type),
+		)
+	})
 	return r
 }
 
@@ -94,14 +103,17 @@ func detectedGroups(groups map[string]*incidents.IncidentGroup) []*incidents.Inc
 			detected = append(detected, group)
 		}
 	}
-	slices.SortFunc(detected, func(a, b *incidents.IncidentGroup) int {
-		return cmp.Or(
-			cmp.Compare(b.Incident.Level, a.Incident.Level),
-			cmp.Compare(b.Count, a.Count),
-			cmp.Compare(a.Incident.Name, b.Incident.Name),
-		)
-	})
 	return detected
+}
+
+func levelsBySeverity(levels map[parser.LogType]int) []Count {
+	counts := []Count{}
+	for level := parser.Fatal; level >= parser.Info; level-- {
+		if levels[level] > 0 {
+			counts = append(counts, Count{level.String(), levels[level]})
+		}
+	}
+	return counts
 }
 
 func servicesByCount(services map[string]int) []Count {
